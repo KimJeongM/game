@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Document</title>
+    <style>
+        *{margin:0; padding:0; box-sizing:border-box;}
+        body, html {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #fff;
+}
+
+.editor {
+	display: block;
+	width: 700px;
+	height: 500px;
+	background: #fff;
+}
+
+/* .drag {
+	position: absolute;
+	display: block;
+	background-color: rgba(33, 33, 255, 0.25);
+	z-index: 1002;
+} */
+    </style>
+</head>
+<body>
+    <script>
+        
+
+        (()=>{
+            let drag, dragStart; 
+            let dragBool = false;
+            let dragMove = false;
+            let dragStartX, dragStartY;
+            let isMouseDownEnabled = true; 
+            const body = document.body; 
+
+            const dim = document.createElement('div'); 
+            dim.style.cssText = `position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(255,245,78,0.5); z-index:1000`; 
+            body.appendChild(dim);
+            document.addEventListener('mousedown', handleMouseDown); 
+            document.addEventListener('mousemove', handleMouseMove); 
+            document.addEventListener('mouseup', handleMouseLeave); 
+            document.addEventListener('mouseleave', handleMouseLeave);
+            document.addEventListener('click', handleMouseLeave);
+
+            function handleMouseDown(e){
+                if(isMouseDownEnabled){
+                    drag = document.createElement('div'); 
+                    drag.className = 'drag'; 
+                    drag.style.cssText = `left:${e.clientX}px; top:${e.clientY}px; color:red; background:rgba(33, 33, 255, 0.25); position:absolute; z-index:1002; font-size:11px; font-family:'aria'`;
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    dragBool = true;
+                    body.appendChild(drag); 
+                    drag.addEventListener('mousedown', handleDragMouseDown); 
+                    drag.addEventListener('click', handleDragClick); 
+                };
+            }
+
+            function handleMouseMove(e){
+                if(dragBool){
+                    let width, height; 
+                    let flipY = (dragStartY > e.clientY); 
+                    let flipX = (dragStartX > e.clientX); 
+
+                    if(flipY){
+                        drag.style.top = e.clientY + 'px'; 
+                        if(flipX){
+                            drag.style.left = e.clientX + 'px'; 
+                            width = dragStartX - e.clientX; 
+                            height = dragStartY - e.clientY;
+                        }else{
+                            width = e.clientX - dragStartX ; 
+                            height = dragStartY - e.clientY; 
+                        }
+                    }else{
+                        if(flipX){
+                            drag.style.left = e.clientX + 'px'; 
+                            width = dragStartX - e.clientX; 
+                            height = e.clientY - dragStartY;
+                        }else{
+                            width = e.clientX - dragStartX; 
+                            height = e.clientY - dragStartY;
+                        }
+                    }
+                    drag.style.width = width + 'px'; 
+                    drag.style.height = height + 'px'; 
+                    dragMove = (Math.abs(dragStartX - e.clientX) > 1 && Math.abs(dragStartY - e.clientY) > 1)? true : false;
+                };
+            }
+
+            function handleMouseLeave(e){
+                if(dragBool && dragMove){
+                    dragBool = false; 
+                    dragMove = false;
+                    drag.textContent = `w:${drag.style.width}, h:${drag.style.height}` ; 
+                };
+            };
+
+            function handleDragMouseDown(e){
+                isMouseDownEnabled = false;
+            }
+            function handleDragClick(e){
+                body.removeChild(e.currentTarget);
+                isMouseDownEnabled = true;
+            }
+        })()
+    </script>
+    
+</body>
+</html>
